@@ -91,6 +91,8 @@ class Plinko extends FlameGame
     world.removeAll(world.children.query<Obstacle>());
     world.removeAll(world.children.query<TriangleBoundary>());
     world.removeAll(world.children.query<MoneyMultiplier>());
+    world.removeAll(world.children.query<TextComponent>());
+
 
     playState = PlayState.playing;
 
