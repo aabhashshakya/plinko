@@ -2,6 +2,7 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 import '../../config.dart';
@@ -28,6 +29,8 @@ class Obstacle extends CircleComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
+    FlameAudio.play('bounce.mp3');
+
     final colorEffect = ColorEffect(
        const Color(0xffB59410),
       EffectController(duration: 0.4,reverseDuration: 1),
