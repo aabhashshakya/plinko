@@ -9,6 +9,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:plinko/src/components/boundary.dart';
+import 'package:plinko/src/components/money_multiplier.dart';
 
 import '../config.dart';
 import 'components/components.dart';
@@ -32,9 +33,13 @@ class Plinko extends FlameGame
   late Vector2 endLeftObstaclePosition;
   late Vector2 endRightObstaclePosition;
 
+  //last row obstacles count
+  final int _lastRowObstaclesCount =
+      _maxRows + 3 - 1; // -1 as index starts from 0 and o < _maxRows
+
   final rand = math.Random();
 
-  final ValueNotifier<int> score = ValueNotifier(0); // Add this line
+  final ValueNotifier<double> score = ValueNotifier(0); // Add this line
 
   double get width => size.x;
 
@@ -81,6 +86,7 @@ class Plinko extends FlameGame
     world.removeAll(world.children.query<Ball>());
     world.removeAll(world.children.query<Obstacle>());
     world.removeAll(world.children.query<TriangleBoundary>());
+    world.removeAll(world.children.query<MoneyMultiplier>());
 
     playState = PlayState.playing;
 
@@ -95,7 +101,7 @@ class Plinko extends FlameGame
     var random = rand.nextDouble();
     world.add(Ball(
         radius: ballRadius,
-        position: Vector2(width / 2, height / 6),
+        position: Vector2(width / 2, height / 3.5),
         //initial position of the ball, which is  center
         velocity:
             Vector2(random > 0.5 ? random * 150 : -random * 150, height * 0.2)
@@ -105,13 +111,27 @@ class Plinko extends FlameGame
     world.addAll([
       // Add from here...
       for (var i = 0; i < _maxRows; i++)
-        for (var j = 0; j < (3 + i); j++)
+        for (var j = 0;
+            j < (3 + i);
+            j++) //start with 3 obstacles in the 1st row
           Obstacle(
             row: i,
             column: j,
             position: _calculateObstaclePosition(i, j),
             color: obstacleColors[i],
           )
+    ]);
+
+    //money multipler at the bottom that catches the ball
+    world.addAll([
+      //eg: if 12 obstacles in last row, we need 11 money multipliers to fill all the gaps
+      for (var i = 0; i < _lastRowObstaclesCount - 1; i++)
+        MoneyMultiplier(
+            column: i,
+            cornerRadius: const Radius.circular(12),
+            position: _calculateMoneyMultiplierPosition(i),
+            color: obstacleColors[i],
+            size: _calculateMoneyMultiplierSize())
     ]);
 
     world.add(TriangleBoundary([
@@ -149,9 +169,25 @@ class Plinko extends FlameGame
       gameWidth / 2.5 -
           (row * 34) +
           (obstacleRadius) +
-          (column * obstacleGutter * 3.9),
-      (row + 10) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
+          (column * obstacleGutter * 3.67),
+      (row + 25) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
     );
+  }
+
+  Vector2 _calculateMoneyMultiplierPosition(int column) {
+
+    var bottomPadding = 70;
+    var bottomObstacle = _calculateObstaclePosition(
+        _maxRows - 1, column); //-1 as index is 0 < maxRows
+
+    return Vector2(
+        bottomObstacle.x -20 + column * 4, bottomObstacle.y + bottomPadding);
+  }
+
+  Vector2 _calculateMoneyMultiplierSize() {
+    var height = 100.0;
+    var width = 65.0;
+    return Vector2(width, height);
   }
 
   Vector2 _calculateTrianglePosition(
@@ -176,9 +212,9 @@ class Plinko extends FlameGame
               }
             case _TriangleVertex.bottom:
               {
-                var bottomLeftObstacle = _calculateObstaclePosition(10, 0);
-                return Vector2(
-                    bottomLeftObstacle.x, bottomLeftObstacle.y - bottomPadding);
+                var bottomLeftObstacle = _calculateObstaclePosition(
+                    _maxRows - 1, 0); //-1 as index is 0 < maxRows
+                return Vector2(0, bottomLeftObstacle.y);
               }
           }
         }
@@ -195,13 +231,15 @@ class Plinko extends FlameGame
               {
                 var topRightObstacle = _calculateObstaclePosition(0, 2);
                 //-100 to make triangle convex, read more inside boundary.dart file
-                return Vector2(gameWidth, topRightObstacle.y - topPadding - 100);
+                return Vector2(
+                    gameWidth, topRightObstacle.y - topPadding - 100);
               }
             case _TriangleVertex.bottom:
               {
-                var bottomRightObstacle = _calculateObstaclePosition(10, 12);
-                return Vector2(bottomRightObstacle.x,
-                    bottomRightObstacle.y - bottomPadding);
+                var bottomRightObstacle = _calculateObstaclePosition(
+                    _maxRows - 1,
+                    _lastRowObstaclesCount); //-1 as index is 0 < maxRows
+                return Vector2(width, bottomRightObstacle.y);
               }
           }
         }

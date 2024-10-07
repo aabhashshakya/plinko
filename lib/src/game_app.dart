@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,11 +23,11 @@ class GameApp extends StatefulWidget {
 }
 
 class _GameAppState extends State<GameApp> {
-  late final Plinko game;
+  late final Plinko plinko;
   @override
   void initState() {
     super.initState();
-    game = Plinko();
+    plinko = Plinko();
   }
   @override
   Widget build(BuildContext context) {
@@ -56,14 +58,14 @@ class _GameAppState extends State<GameApp> {
               child: Center(
                 child: Column(
                   children: [
-                    ScoreCard(score: game.score),
+                    ScoreCard(score: plinko.score),
                     Expanded(
                       child: FittedBox(
                         child: SizedBox(
                           width: gameWidth,
                           height: gameHeight,
                           child: GameWidget(
-                            game: game,
+                            game: plinko,
                             overlayBuilderMap: {
                               PlayState.welcome.name: (context, game) =>
                               const OverlayScreen(
@@ -76,8 +78,8 @@ class _GameAppState extends State<GameApp> {
                                 subtitle: 'Tap to Play Again',
                               ),
                               PlayState.won.name: (context, game) =>
-                              const OverlayScreen(
-                                title: 'Y O U   W O N ! ! !',
+                               OverlayScreen(
+                                title: 'Y O U   W O N ! ! !  X${plinko.score.value}',
                                 subtitle: 'Tap to Play Again',
                               ),
                             },

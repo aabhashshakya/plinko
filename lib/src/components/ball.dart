@@ -114,6 +114,16 @@ class Ball extends CircleComponent
         velocity.x = 45 * Random().nextDouble() * 6;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
+    } else if (other is MoneyMultiplier){
+      //the ball hit the money multiplier and user won something
+      add(RemoveEffect(
+        // Modify from here...
+          delay: 0,
+          onComplete: () {
+            // Modify from here
+            game.score.value = other.multiplier.toDouble();
+            game.playState = PlayState.won;
+          }));
     }
   }
 

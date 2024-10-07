@@ -6,11 +6,11 @@ class ScoreCard extends StatelessWidget {
     required this.score,
   });
 
-  final ValueNotifier<int> score;
+  final ValueNotifier<double> score;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
+    return ValueListenableBuilder<double>(
       valueListenable: score,
       builder: (context, score, child) {
         return Padding(

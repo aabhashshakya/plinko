@@ -11,7 +11,7 @@ class TriangleBoundary extends PolygonComponent
     with CollisionCallbacks, HasGameReference<Plinko> {
   TriangleBoundary(super.vertices) : super(
     paint: Paint()
-      ..color = Colors.red
+      ..color = Colors.grey.withOpacity(0.07)
       ..style = PaintingStyle.fill,
   );
 

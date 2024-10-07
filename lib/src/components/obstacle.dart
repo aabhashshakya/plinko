@@ -1,5 +1,7 @@
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 
 import '../../config.dart';
@@ -8,7 +10,7 @@ import 'ball.dart';
 
 class Obstacle extends CircleComponent
     with CollisionCallbacks, HasGameReference<Plinko> {
-  Obstacle({required this.row, required this.column, required super.position, required Color color})
+  Obstacle({required this.row, required this.column, required super.position, required this.color})
       : super(
     radius: obstacleRadius * 0.8,
     anchor: Anchor.center,
@@ -20,24 +22,24 @@ class Obstacle extends CircleComponent
 
   final int row;
   final int column;
+  final Color color;
 
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-
-    //win condition
-    //The most important new concept this code introduces is how the player achieves the win condition. The win condition
-    // check queries the world for bricks, and confirms that only one remains. This might be a bit confusing, because the
-    // preceding line removes this brick from its parent.
-    // The key point to understand is that component removal is a queued command. It removes the brick after this code runs,
-    // but before the next tick of the game world.
-    game.score.value++;                                         // Add this line
-
-    if (game.world.children.query<Obstacle>().length == 1) {
-      game.playState = PlayState.won;                          // Add this line
-
-      game.world.removeAll(game.world.children.query<Ball>());
-    }
+    final colorEffect = ColorEffect(
+       const Color(0xffB59410),
+      EffectController(duration: 0.4,reverseDuration: 1),
+       opacityFrom: 0,
+      opacityTo: 1,
+    );
+    final effect = GlowEffect(
+      25,
+      EffectController(duration: 0.7,reverseDuration: 0),
+      style: BlurStyle.solid
+    );
+   // add(colorEffect);
+   add(effect);
   }
 }

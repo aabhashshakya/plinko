@@ -6,4 +6,4 @@ export 'play_area.dart';
 export 'ball.dart';
 export 'obstacle.dart';
 export 'boundary.dart';
-
+export 'money_multiplier.dart';
