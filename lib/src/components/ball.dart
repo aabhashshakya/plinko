@@ -49,16 +49,9 @@ class Ball extends CircleComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
+    print("----------- COLLISION START-------------");
 
-    print("intersectionPoint ball: x:${position.x} y: ${position.y}");
-    print(
-        "intersectionPoint obstacle: x:${other.position.x} y: ${other.position.y}");
-    print(
-        "intersectionPoint midpoint: x:${other.center.x} y: ${other.center.y}");
 
-    intersectionPoints.forEach((e) {
-      print("intersectionPoint: x: ${e.x} y:${e.y} ");
-    });
 
     if (other is PlayArea) {
       //game is over if ball goes out of play area
@@ -89,12 +82,12 @@ class Ball extends CircleComponent
       // Modify from here...
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision start: y: ${position.y} < oy: ${other.position.y}");
-        velocity.y = -40 * Random().nextDouble() * 5;
+        velocity.y = -45 * Random().nextDouble() * 5;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.y > other.position.y + other.size.y / 2) {
         print("collision start: y: ${position.y} > oy:${other.position.y}");
-        velocity.y = 400 * Random().nextDouble() * 5;
+        velocity.y = 200 * Random().nextDouble() * 5;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x < other.position.x) {
@@ -107,19 +100,6 @@ class Ball extends CircleComponent
         velocity.x = 45 * Random().nextDouble() * 6;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
-    } else if (other is MoneyMultiplier) {
-      //the ball hit the money multiplier and user won something
-      add(RemoveEffect(
-          // Modify from here...
-          delay: 0,
-          onComplete: () {
-            game.score.value = other.multiplier.toDouble();
-            if (other.multiplier.toDouble() < 1.0) {
-              game.playState = PlayState.gameOver;
-            } else {
-              game.playState = PlayState.won;
-            }
-          }));
     }
   }
 
@@ -130,26 +110,28 @@ class Ball extends CircleComponent
     if (other is Obstacle) {
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision end: y:${position.y} < oy:${other.position.y}");
-        Future.delayed(const Duration(milliseconds: 40), () {
-          velocity.y = 300;
+        Future.delayed(const Duration(milliseconds: 55), () {
+          velocity.y = 280;
         });
         //velocity.x = velocity.x /0.3;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.y > other.position.y + other.size.y / 2) {
         print("collision end: y:${position.y} > oy:${other.position.y}");
-        Future.delayed(const Duration(milliseconds: 40), () {
-          velocity.y = 300;
+        Future.delayed(const Duration(milliseconds:55), () {
+          velocity.y = 280;
         });
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x < other.position.x) {
         print("collision end: x:${position.x} < ox:${other.position.x}");
+        velocity.y += 70;
         // velocity.x = velocity.x;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x > other.position.x) {
         print("collision end: x:${position.x} > ox:${other.position.x}");
+        velocity.y += 70;
         //  velocity.x = -velocity.x;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }

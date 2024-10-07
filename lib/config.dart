@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 //but all the components added to the screen conform to this height and width.
 const gameWidth = 820.0;
 const gameHeight = 1600.0;
-const ballRadius = gameWidth * 0.0248;
-const obstacleRadius = ballRadius * 0.52;
+const ballRadius = gameWidth * 0.020;
+const obstacleRadius = ballRadius * 0.525;
 
 const moneyMultiplierColors = [                                           // Add this const
   Color(0xfff94144),

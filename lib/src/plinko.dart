@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -104,10 +105,10 @@ class Plinko extends FlameGame
     var random = rand.nextDouble();
     world.add(Ball(
         radius: ballRadius,
-        position: Vector2(width / 2, height / 4.2),
+        position: Vector2(width / 2, height / 4.5),
         //initial position of the ball, which s  center
         velocity:
-            Vector2(random > 0.5 ? random * 130 : random * -280, height * 0.2)
+            Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
                 .normalized()
               ..scale(height / 4))); //scale is the speed, how fast it moves
 
@@ -155,7 +156,15 @@ class Plinko extends FlameGame
           _TriangleLocation.right, _TriangleVertex.bottom),
     ]));
 
-    debugMode = true;
+    world.add(TextComponent(text: 'x0.0', textRenderer: _regular)
+      ..anchor = Anchor.topCenter
+      ..x = width*0.97
+      ..y = _calculateObstaclePosition(_maxRows-1, _lastRowObstaclesCount -1).y * 0.88);
+    world.add(TextComponent(text: 'x0.0', textRenderer: _regular)
+      ..anchor = Anchor.topCenter
+      ..x = 20
+      ..y = _calculateObstaclePosition(_maxRows-1, 0).y * 0.88);
+
   }
 
   @override // Add from here...
@@ -173,13 +182,13 @@ class Plinko extends FlameGame
           (row * 34) +
           (obstacleRadius) +
           (column * obstacleGutter * 4), //change this constant when you change obstacle Gutter size
-      (row + 21) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
+      (row + 23) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
     );
   }
 
   Vector2 _calculateMoneyMultiplierPosition(int column) {
 
-    var bottomPadding = 70;
+    var bottomPadding = 50;
     var bottomObstacle = _calculateObstaclePosition(
         _maxRows - 1, column); //-1 as index is 0 < maxRows
 
@@ -257,3 +266,12 @@ const _maxRows = 10;
 enum _TriangleVertex { topLeft, topRight, bottom }
 
 enum _TriangleLocation { left, right }
+
+final _regularTextStyle = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+  color: BasicPalette.red.color.withOpacity(0.8),
+);
+final _regular = TextPaint(
+  style: _regularTextStyle,
+);

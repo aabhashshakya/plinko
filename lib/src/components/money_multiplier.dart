@@ -39,8 +39,8 @@ class MoneyMultiplier extends RectangleComponent
     multiplier = moneyMultiplier[column];
     add(TextComponent(text: 'x$multiplier', textRenderer: _regular)
       ..anchor = Anchor.topCenter
-      ..x = size.x/2
-      ..y = size.y*0.4);
+      ..x = size.x / 2
+      ..y = size.y * 0.4);
   }
 
   @override
@@ -49,16 +49,25 @@ class MoneyMultiplier extends RectangleComponent
     // TODO: implement onCollisionStart
     super.onCollisionStart(intersectionPoints, other);
     if (other is Ball) {
-      if (intersectionPoints.first.x < (position.x + size.x) &&
-          intersectionPoints.first.y < position.y + size.y) {
-        _winCondition();
 
+      if (intersectionPoints.first.x >= position.x &&
+          intersectionPoints.first.x < (position.x + size.x)) {
+        _winCondition(other);
       }
     }
   }
 
-  void _winCondition(){
-    final glowEffect = GlowEffect(
+  void _winCondition(Ball ball) {
+    if(ball.isRemoved || isRemoving){
+      return;
+    }
+    game.world.removeAll(game.world.children.query<Ball>());
+    game.score.value = multiplier.toDouble();
+    if (multiplier.toDouble() < 1.0) {
+      game.playState = PlayState.gameOver;
+    } else {
+      game.playState = PlayState.won;
+    }    final glowEffect = GlowEffect(
         20, EffectController(duration: 0.5, reverseDuration: 1),
         style: BlurStyle.solid);
     // add(colorEffect);
@@ -89,4 +98,4 @@ final _regular = TextPaint(
   style: _regularTextStyle,
 );
 
-final moneyMultiplier = [2.0,1.5,1.2,1.0,0.8,0.5,0.8,1.0,1.2,1.5,2.0];
+final moneyMultiplier = [2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0];
