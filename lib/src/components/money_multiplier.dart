@@ -77,8 +77,7 @@ class MoneyMultiplier extends RectangleComponent
     // preceding line removes this brick from its parent.
     // The key point to understand is that component removal is a queued command. It removes the brick after this code runs,
     // but before the next tick of the game world.
-    game.score.value = multiplier.toDouble();
-    game.playState = PlayState.won;
+
   }
 }
 

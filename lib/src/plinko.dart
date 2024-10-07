@@ -6,7 +6,9 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plinko/src/components/boundary.dart';
 import 'package:plinko/src/components/money_multiplier.dart';
@@ -61,16 +63,17 @@ class Plinko extends FlameGame
         overlays.remove(PlayState.won.name);
     }
   }
+  late final AudioPool bounceEffect;
 
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
-
     //By default, Flame follows Flutter’s canvas anchoring, which means that (0, 0) is anchored on the top left corner
     // of the canvas. So the game and all components use that same anchor by default. We can change this by changing
     // our component’s anchor attribute to Anchor.center, which will make our life way easier if you want to center the
     // component on the screen.
     camera.viewfinder.anchor = Anchor.topLeft;
+    bounceEffect =  await FlameAudio.createPool('bounce.mp3', maxPlayers: 2);
 
     //Adds the PlayArea to the world. The world represents the game world. It projects all of its children through the
     // CameraComponents view transformation.
@@ -101,10 +104,10 @@ class Plinko extends FlameGame
     var random = rand.nextDouble();
     world.add(Ball(
         radius: ballRadius,
-        position: Vector2(width / 2, height / 3.5),
-        //initial position of the ball, which is  center
+        position: Vector2(width / 2, height / 4.2),
+        //initial position of the ball, which s  center
         velocity:
-            Vector2(random > 0.5 ? random * 150 : -random * 150, height * 0.2)
+            Vector2(random > 0.5 ? random * 130 : random * -280, height * 0.2)
                 .normalized()
               ..scale(height / 4))); //scale is the speed, how fast it moves
 
@@ -118,7 +121,7 @@ class Plinko extends FlameGame
             row: i,
             column: j,
             position: _calculateObstaclePosition(i, j),
-            color: obstacleColors[i],
+            color: moneyMultiplierColors[i],
           )
     ]);
 
@@ -130,7 +133,7 @@ class Plinko extends FlameGame
             column: i,
             cornerRadius: const Radius.circular(12),
             position: _calculateMoneyMultiplierPosition(i),
-            color: obstacleColors[i],
+            color: moneyMultiplierColors[i],
             size: _calculateMoneyMultiplierSize())
     ]);
 
@@ -162,15 +165,15 @@ class Plinko extends FlameGame
   }
 
   @override
-  Color backgroundColor() => const Color(0xfff2e8cf); // Add this override
+  Color backgroundColor() =>  Colors.transparent; //make game transparent
 
   Vector2 _calculateObstaclePosition(int row, int column) {
     return Vector2(
       gameWidth / 2.5 -
           (row * 34) +
           (obstacleRadius) +
-          (column * obstacleGutter * 3.67),
-      (row + 25) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
+          (column * obstacleGutter * 4), //change this constant when you change obstacle Gutter size
+      (row + 21) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
     );
   }
 
@@ -181,7 +184,7 @@ class Plinko extends FlameGame
         _maxRows - 1, column); //-1 as index is 0 < maxRows
 
     return Vector2(
-        bottomObstacle.x -20 + column * 4, bottomObstacle.y + bottomPadding);
+        bottomObstacle.x - 10 + 3 * column, bottomObstacle.y + bottomPadding);
   }
 
   Vector2 _calculateMoneyMultiplierSize() {

@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plinko/src/widgets/score_card.dart';
@@ -24,11 +25,13 @@ class GameApp extends StatefulWidget {
 
 class _GameAppState extends State<GameApp> {
   late final Plinko plinko;
+
   @override
   void initState() {
     super.initState();
     plinko = Plinko();
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,52 +46,51 @@ class _GameAppState extends State<GameApp> {
       home: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xffa9d6e5),
-                Color(0xfff2e8cf),
-              ],
-            ),
-          ),
+              image: DecorationImage(
+                  image: AssetImage("assets/images/bg.jpeg"),
+                  fit: BoxFit.cover)),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: Column(
-                  children: [
-                    ScoreCard(score: plinko.score),
-                    Expanded(
-                      child: FittedBox(
-                        child: SizedBox(
-                          width: gameWidth,
-                          height: gameHeight,
-                          child: GameWidget(
-                            game: plinko,
-                            overlayBuilderMap: {
-                              PlayState.welcome.name: (context, game) =>
-                              const OverlayScreen(
-                                title: 'TAP TO PLAY',
-                                subtitle: 'Use arrow keys or swipe',
-                              ),
-                              PlayState.gameOver.name: (context, game) =>
-                              const OverlayScreen(
-                                title: 'G A M E   O V E R',
+            child: Center(
+              child: Column(
+                children: [
+                  ScoreCard(score: plinko.score),
+                  Expanded(
+                    child: FittedBox(
+                      child: SizedBox(
+                        width: gameWidth,
+                        height: gameHeight,
+                        child: GameWidget(
+                          game: plinko,
+                          overlayBuilderMap: {
+                            PlayState.welcome.name: (context, game) =>
+                                const OverlayScreen(
+                                  color: Colors.white60,
+                                  title: 'TAP TO PLAY',
+                                  subtitle: '',
+                                ),
+                            PlayState.gameOver.name: (context, game) {
+                              FlameAudio.play('lose.mp3');
+                              return  OverlayScreen(
+                                color: Colors.redAccent,
+                                title: 'Y O U   L O S E ! ! ! ${plinko.score.value > 0 ? "X${plinko.score.value}" : ""}',
                                 subtitle: 'Tap to Play Again',
-                              ),
-                              PlayState.won.name: (context, game) =>
-                               OverlayScreen(
-                                title: 'Y O U   W O N ! ! !  X${plinko.score.value}',
-                                subtitle: 'Tap to Play Again',
-                              ),
+                              );
                             },
-                          ),
+                            PlayState.won.name: (context, game) {
+                              FlameAudio.play('win.mp3');
+                              return  OverlayScreen(
+                                color: Colors.amber,
+                                title:
+                                    'Y O U   W O N ! ! !  X${plinko.score.value}',
+                                subtitle: 'Tap to Play Again',
+                              );
+                            }
+                          },
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

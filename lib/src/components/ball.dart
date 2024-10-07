@@ -19,12 +19,12 @@ class Ball extends CircleComponent
     required super.position,
     required double radius,
   }) : super(
-      radius: radius,
-      anchor: Anchor.center,
-      paint: Paint()
-        ..color = const Color(0xff1e6091)
-        ..style = PaintingStyle.fill,
-      children: [CircleHitbox()]); // Add this parameter
+            radius: radius,
+            anchor: Anchor.center,
+            paint: Paint()
+              ..color = Colors.orange
+              ..style = PaintingStyle.fill,
+            children: [CircleHitbox()]); // Add this parameter
 
   final Vector2 velocity;
   final _velocityTmp = Vector2.zero();
@@ -39,90 +39,86 @@ class Ball extends CircleComponent
     velocity.y += 20 * dt;
     _velocityTmp
       ..setFrom(velocity)
-      ..scale(dt*1.2); //scale is speed
+      ..scale(dt * 1.3); //scale is speed
 
     // Update position based on the current velocity.
     position.add(_velocityTmp);
   }
 
   @override // Add from here...
-  void onCollisionStart(Set<Vector2> intersectionPoints,
-      PositionComponent other) {
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
     print("intersectionPoint ball: x:${position.x} y: ${position.y}");
-    print("intersectionPoint obstacle: x:${other.position.x} y: ${other.position.y}");
-    print("intersectionPoint midpoint: x:${other.center.x} y: ${other.center.y}");
+    print(
+        "intersectionPoint obstacle: x:${other.position.x} y: ${other.position.y}");
+    print(
+        "intersectionPoint midpoint: x:${other.center.x} y: ${other.center.y}");
 
     intersectionPoints.forEach((e) {
       print("intersectionPoint: x: ${e.x} y:${e.y} ");
     });
 
     if (other is PlayArea) {
-      if (intersectionPoints.first.y <= 0) {
-        //top wall collide, just reverse the velocity direction
-        velocity.y = -velocity.y;
-      } else if (intersectionPoints.first.x <= 0) {
-        //left wall collide, just reverse the velocity direction
-        velocity.x = -velocity.x;
-      } else if (intersectionPoints.first.x >= game.width) {
-        //right wall collide, just reverse the velocity direction
-        velocity.x = -velocity.x;
-     } else
-        if (intersectionPoints.first.y >= game.height) {
-        //When the ball collides with the bottom wall, it just disappears from the playing
-        // surface while still very much in view. You handle this artifact in a future step, using the power
-        // of Flame's Effects.
-        add(RemoveEffect(
+      //game is over if ball goes out of play area
+      add(RemoveEffect(
           // Modify from here...
-            delay: 0.35,
-            onComplete: () {
-              // Modify from here
-              game.playState = PlayState.gameOver;
-            }));
-      }
-    }else if(other is TriangleBoundary) {
-      if (position.y < intersectionPoints.first.y) {
-        //top boundary collide, just reverse the velocity direction
-        velocity.y = -velocity.y;
-      }  if (position.y > intersectionPoints.first.y) {
-        //When the ball collides with the bottom boundary, it just disappears from the playing
-        velocity.y = -velocity.y;
-      }  if (position.x < other.position.x) {
-        //right boundary collide, just reverse the velocity direction
-        velocity.x = -velocity.x;
-      }  if (position.x > other.position.x) {
-        //left boundary collide, just reverse the velocity direction
-        velocity.x = -velocity.x;
-      }
-    }  else if (other is Obstacle) {
+          delay: 0.35,
+          onComplete: () {
+            // Modify from here
+            game.playState = PlayState.gameOver;
+          }));
+    }
+    // else if(other is TriangleBoundary) {
+    //   if (position.y < intersectionPoints.first.y) {
+    //     //top boundary collide, just reverse the velocity direction
+    //     velocity.y = -velocity.y;
+    //   }  if (position.y > intersectionPoints.first.y) {
+    //     //When the ball collides with the bottom boundary, it just disappears from the playing
+    //     velocity.y = -velocity.y;
+    //   }  if (position.x < other.position.x) {
+    //     //right boundary collide, just reverse the velocity direction
+    //     velocity.x = -velocity.x;
+    //   }  if (position.x > other.position.x) {
+    //     //left boundary collide, just reverse the velocity direction
+    //     velocity.x = -velocity.x;
+    //   }
+    // }
+    else if (other is Obstacle) {
       // Modify from here...
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision start: y: ${position.y} < oy: ${other.position.y}");
         velocity.y = -40 * Random().nextDouble() * 5;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.y > other.position.y + other.size.y / 2) {
+      }
+      if (position.y > other.position.y + other.size.y / 2) {
         print("collision start: y: ${position.y} > oy:${other.position.y}");
         velocity.y = 400 * Random().nextDouble() * 5;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.x < other.position.x) {
+      }
+      if (position.x < other.position.x) {
         print("collision start: x:${position.x} < ox:${other.position.x}");
         velocity.x = -45 * Random().nextDouble() * 6;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.x > other.position.x) {
+      }
+      if (position.x > other.position.x) {
         print("collision start: x:${position.x} > ox:${other.position.x}");
         velocity.x = 45 * Random().nextDouble() * 6;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
-    } else if (other is MoneyMultiplier){
+    } else if (other is MoneyMultiplier) {
       //the ball hit the money multiplier and user won something
       add(RemoveEffect(
-        // Modify from here...
+          // Modify from here...
           delay: 0,
           onComplete: () {
-            // Modify from here
             game.score.value = other.multiplier.toDouble();
-            game.playState = PlayState.won;
+            if (other.multiplier.toDouble() < 1.0) {
+              game.playState = PlayState.gameOver;
+            } else {
+              game.playState = PlayState.won;
+            }
           }));
     }
   }
@@ -133,27 +129,30 @@ class Ball extends CircleComponent
     super.onCollisionEnd(other);
     if (other is Obstacle) {
       if (position.y < other.position.y - other.size.y / 2) {
-       print("collision end: y:${position.y} < oy:${other.position.y}");
+        print("collision end: y:${position.y} < oy:${other.position.y}");
         Future.delayed(const Duration(milliseconds: 40), () {
           velocity.y = 300;
         });
         //velocity.x = velocity.x /0.3;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.y > other.position.y + other.size.y / 2) {
+      }
+      if (position.y > other.position.y + other.size.y / 2) {
         print("collision end: y:${position.y} > oy:${other.position.y}");
         Future.delayed(const Duration(milliseconds: 40), () {
           velocity.y = 300;
-        });        print("end velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.x < other.position.x) {
-        print("collision end: x:${position.x} < ox:${other.position.x}");
-       // velocity.x = velocity.x;
+        });
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
-      }  if (position.x > other.position.x ) {
+      }
+      if (position.x < other.position.x) {
+        print("collision end: x:${position.x} < ox:${other.position.x}");
+        // velocity.x = velocity.x;
+        print("end velocity: x:${velocity.x} y: ${velocity.y}");
+      }
+      if (position.x > other.position.x) {
         print("collision end: x:${position.x} > ox:${other.position.x}");
-      //  velocity.x = -velocity.x;
+        //  velocity.x = -velocity.x;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }
     }
   }
 }
-
