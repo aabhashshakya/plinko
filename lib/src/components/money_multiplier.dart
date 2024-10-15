@@ -64,9 +64,9 @@ class MoneyMultiplier extends RectangleComponent
     game.world.removeAll(game.world.children.query<Ball>());
     game.score.value = multiplier.toDouble();
     if (multiplier.toDouble() < 1.0) {
-      game.playState = PlayState.gameOver;
+      game.setPlayState(PlayState.lost);
     } else {
-      game.playState = PlayState.won;
+      game.setPlayState(PlayState.won);
     }    final glowEffect = GlowEffect(
         20, EffectController(duration: 0.5, reverseDuration: 1),
         style: BlurStyle.solid);

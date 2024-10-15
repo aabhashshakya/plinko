@@ -60,7 +60,7 @@ class Ball extends CircleComponent
           delay: 0.35,
           onComplete: () {
             // Modify from here
-            game.playState = PlayState.gameOver;
+            game.setPlayState(PlayState.lost);
           }));
     }
     // else if(other is TriangleBoundary) {

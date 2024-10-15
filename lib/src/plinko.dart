@@ -1,5 +1,6 @@
 ///Created by Aabhash Shakya on 9/11/24
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -17,7 +18,7 @@ import 'package:plinko/src/components/money_multiplier.dart';
 import '../config.dart';
 import 'components/components.dart';
 
-enum PlayState { welcome, playing, gameOver, won } // Add this enumeration
+enum PlayState { inactive, playing, lost, won, gameOver  } // Add this enumeration
 
 class Plinko extends FlameGame
     with HasCollisionDetection, KeyboardEvents, TapDetector {
@@ -48,22 +49,30 @@ class Plinko extends FlameGame
 
   double get height => size.y;
 
-  late PlayState _playState; // Add from here...
-  PlayState get playState => _playState;
+  final ValueNotifier<PlayState> playState =
+      ValueNotifier(PlayState.inactive); // Add from here...
 
-  set playState(PlayState playState) {
-    _playState = playState;
-    switch (playState) {
-      case PlayState.welcome:
-      case PlayState.gameOver:
-      case PlayState.won:
-        overlays.add(playState.name);
-      case PlayState.playing:
-        overlays.remove(PlayState.welcome.name);
-        overlays.remove(PlayState.gameOver.name);
+  void setPlayState(PlayState state) {
+    playState.value = state;
+    switch (playState.value) {
+      case PlayState.lost || PlayState.won:
+        {
+          overlays.add(playState.value.name);
+        }
+      case PlayState.playing || PlayState.inactive:
+        {
+          overlays.remove(PlayState.lost.name);
+          overlays.remove(PlayState.won.name);
+        }
+      case PlayState.gameOver:{
+        overlays.remove(PlayState.lost.name);
         overlays.remove(PlayState.won.name);
+        overlays.add(playState.value.name);
+      }
+
     }
   }
+
   late final AudioPool bounceEffect;
 
   @override
@@ -74,17 +83,17 @@ class Plinko extends FlameGame
     // our component’s anchor attribute to Anchor.center, which will make our life way easier if you want to center the
     // component on the screen.
     camera.viewfinder.anchor = Anchor.topLeft;
-    bounceEffect =  await FlameAudio.createPool('bounce.mp3', maxPlayers: 2);
+    bounceEffect = await FlameAudio.createPool('bounce.mp3', maxPlayers: 2);
+
+    setPlayState(PlayState.inactive);
 
     //Adds the PlayArea to the world. The world represents the game world. It projects all of its children through the
     // CameraComponents view transformation.
     world.add(PlayArea());
-
-    playState = PlayState.welcome; // Add from here...
+    loadGame();
   }
 
-  void startGame() {
-    if (playState == PlayState.playing) return;
+  void loadGame() {
     score.value = 0; // Add this line
 
     world.removeAll(world.children.query<Ball>());
@@ -92,27 +101,6 @@ class Plinko extends FlameGame
     world.removeAll(world.children.query<TriangleBoundary>());
     world.removeAll(world.children.query<MoneyMultiplier>());
     world.removeAll(world.children.query<TextComponent>());
-
-
-    playState = PlayState.playing;
-
-    //This change adds the Ball component to the world. To set the ball's position to the center of the display area,
-    // the code first halves the size of the game, as Vector2 has operator overloads (* and /) to scale a Vector2 by a
-    // scalar value.
-    // To set the ball's velocity involves more complexity. The intent is to move the ball down the screen in a random
-    // direction at a reasonable speed. The call to the normalized method creates a Vector2 object set to the same
-    // direction as the original Vector2, but scaled down to a distance of 1. This keeps the speed of the ball consistent
-    // no matter which direction the ball goes. The ball's velocity is then scaled up to be a 1/4 of the height of the game.
-    // Getting these various values right involves some iteration, also known as playtesting in the industry.
-    var random = rand.nextDouble();
-    world.add(Ball(
-        radius: ballRadius,
-        position: Vector2(width / 2, height / 4.5),
-        //initial position of the ball, which s  center
-        velocity:
-            Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
-                .normalized()
-              ..scale(height / 4))); //scale is the speed, how fast it moves
 
     world.addAll([
       // Add from here...
@@ -160,36 +148,54 @@ class Plinko extends FlameGame
 
     world.add(TextComponent(text: 'x0.0', textRenderer: _regular)
       ..anchor = Anchor.topCenter
-      ..x = width*0.97
-      ..y = _calculateObstaclePosition(_maxRows-1, _lastRowObstaclesCount -1).y * 0.88);
+      ..x = width * 0.97
+      ..y = _calculateObstaclePosition(_maxRows - 1, _lastRowObstaclesCount - 1)
+              .y *
+          0.88);
     world.add(TextComponent(text: 'x0.0', textRenderer: _regular)
       ..anchor = Anchor.topCenter
       ..x = 20
-      ..y = _calculateObstaclePosition(_maxRows-1, 0).y * 0.88);
-
+      ..y = _calculateObstaclePosition(_maxRows - 1, 0).y * 0.88);
   }
 
-  @override // Add from here...
-  void onTap() {
-    super.onTap();
-    startGame();
+  void playGame() {
+    if (playState.value == PlayState.playing) return;
+    score.value = 0; // Add this line
+    setPlayState(PlayState.playing);
+    //This change adds the Ball component to the world. To set the ball's position to the center of the display area,
+    // the code first halves the size of the game, as Vector2 has operator overloads (* and /) to scale a Vector2 by a
+    // scalar value.
+    // To set the ball's velocity involves more complexity. The intent is to move the ball down the screen in a random
+    // direction at a reasonable speed. The call to the normalized method creates a Vector2 object set to the same
+    // direction as the original Vector2, but scaled down to a distance of 1. This keeps the speed of the ball consistent
+    // no matter which direction the ball goes. The ball's velocity is then scaled up to be a 1/4 of the height of the game.
+    // Getting these various values right involves some iteration, also known as playtesting in the industry.
+    var random = rand.nextDouble();
+    world.add(Ball(
+        radius: ballRadius,
+        position: Vector2(width / 2, height / 4.5),
+        //initial position of the ball, which s  center
+        velocity:
+            Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
+                .normalized()
+              ..scale(height / 4))); //scale is the speed, how fast it moves
   }
 
   @override
-  Color backgroundColor() =>  Colors.transparent; //make game transparent
+  Color backgroundColor() => Colors.transparent; //make game transparent
 
   Vector2 _calculateObstaclePosition(int row, int column) {
     return Vector2(
       gameWidth / 2.5 -
           (row * 34) +
           (obstacleRadius) +
-          (column * obstacleGutter * 4), //change this constant when you change obstacle Gutter size
-      (row + 23) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
+          (column * obstacleGutter * 4),
+      //change this constant when you change obstacle Gutter size
+      (row + 22.3) * (obstacleRadius * 2.7) + (row * obstacleGutter * 2),
     );
   }
 
   Vector2 _calculateMoneyMultiplierPosition(int column) {
-
     var bottomPadding = 50;
     var bottomObstacle = _calculateObstaclePosition(
         _maxRows - 1, column); //-1 as index is 0 < maxRows
