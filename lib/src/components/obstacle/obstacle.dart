@@ -1,12 +1,10 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
-import '../../config.dart';
-import '../plinko.dart';
-import 'ball.dart';
+import '../../../config.dart';
+import '../../plinko.dart';
 
 class Obstacle extends CircleComponent
     with CollisionCallbacks, HasGameReference<Plinko> {
@@ -14,7 +12,7 @@ class Obstacle extends CircleComponent
       {required this.row,
       required this.column,
       required super.position,
-      required this.color})
+      })
       : super(
           radius: obstacleRadius * 0.8,
           anchor: Anchor.center,
@@ -26,7 +24,6 @@ class Obstacle extends CircleComponent
 
   final int row;
   final int column;
-  final Color color;
 
   @override
   void onCollisionStart(

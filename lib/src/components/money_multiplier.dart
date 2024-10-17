@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/events.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:plinko/src/components/ball.dart';
@@ -98,4 +97,4 @@ final _regular = TextPaint(
   style: _regularTextStyle,
 );
 
-final moneyMultiplier = [2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0];
+final moneyMultiplier = [2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0,2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0];

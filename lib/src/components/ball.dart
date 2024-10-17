@@ -3,7 +3,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
-import 'package:plinko/src/components/boundary.dart';
 
 import '../plinko.dart';
 import 'components.dart';
@@ -19,7 +18,7 @@ class Ball extends CircleComponent
     required super.position,
     required double radius,
   }) : super(
-            radius: radius,
+            radius: radius * 1.02,
             anchor: Anchor.center,
             paint: Paint()
               ..color = Colors.orange
@@ -38,7 +37,7 @@ class Ball extends CircleComponent
     super.update(dt);
     velocity.y += 20 * dt;
     _velocityTmp
-      ..setFrom(velocity)
+      ..setFrom(velocity)..clamp(Vector2(-200, -10), Vector2(200, 350))
       ..scale(dt * 1.3); //scale is speed
 
     // Update position based on the current velocity.
@@ -82,7 +81,7 @@ class Ball extends CircleComponent
       // Modify from here...
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision start: y: ${position.y} < oy: ${other.position.y}");
-        velocity.y = -45 * Random().nextDouble() * 5;
+        velocity.y = -25 * Random().nextDouble() * 5;
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.y > other.position.y + other.size.y / 2) {
@@ -92,12 +91,12 @@ class Ball extends CircleComponent
       }
       if (position.x < other.position.x) {
         print("collision start: x:${position.x} < ox:${other.position.x}");
-        velocity.x = -45 * Random().nextDouble() * 6;
+        velocity.x += velocity.x > 0 ? -velocity.x - 95 *(Random().nextDouble() * 6) : (velocity.x * -1) - 35 * (Random().nextDouble() * 6);
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x > other.position.x) {
         print("collision start: x:${position.x} > ox:${other.position.x}");
-        velocity.x = 45 * Random().nextDouble() * 6;
+        velocity.x += velocity.x > 0 ? velocity.x + 95 * (Random().nextDouble() * 6) : (velocity.x * -1) + 35 * (Random().nextDouble() * 6);
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
     }
@@ -110,8 +109,8 @@ class Ball extends CircleComponent
     if (other is Obstacle) {
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision end: y:${position.y} < oy:${other.position.y}");
-        Future.delayed(const Duration(milliseconds: 55), () {
-          velocity.y = 280;
+        Future.delayed(const Duration(milliseconds: 20), () {
+          velocity.y += 180;
         });
         //velocity.x = velocity.x /0.3;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
@@ -125,13 +124,13 @@ class Ball extends CircleComponent
       }
       if (position.x < other.position.x) {
         print("collision end: x:${position.x} < ox:${other.position.x}");
-        velocity.y += 70;
+        velocity.y += 120;
         // velocity.x = velocity.x;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x > other.position.x) {
         print("collision end: x:${position.x} > ox:${other.position.x}");
-        velocity.y += 70;
+        velocity.y += 120;
         //  velocity.x = -velocity.x;
         print("end velocity: x:${velocity.x} y: ${velocity.y}");
       }

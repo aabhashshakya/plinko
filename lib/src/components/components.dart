@@ -4,6 +4,6 @@
 // into another file. This file will grow more entries as you add new components in the following steps.
 export 'play_area.dart';
 export 'ball.dart';
-export 'obstacle.dart';
+export 'obstacle/obstacle.dart';
 export 'boundary.dart';
 export 'money_multiplier.dart';
