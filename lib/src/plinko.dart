@@ -162,7 +162,7 @@ class Plinko extends FlameGame
     // Getting these various values right involves some iteration, also known as playtesting in the industry.
 
     for (int i = 0; i < roundInfo.balls; i++) {
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future.delayed(const Duration(milliseconds: 250));
       var random = rand.nextDouble();
       world.add(Ball(
         index: i,
