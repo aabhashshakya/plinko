@@ -210,25 +210,26 @@ class _GameAppState extends State<GameApp> {
                                 _roundedTextFieldWithButtons("Bet",
                                     "\$${context.watch<GameProvider>().bet}",
                                     () {
-                                  if (plinko.getPlayState() ==
+                                      //on increase bet
+                                      if (plinko.getPlayState() ==
                                       PlayState.playing) {
                                     return;
                                   }
                                   plinko.setPlayState(PlayState.ready);
 
-                                  var bet = context
+                                  context
                                       .read<GameProvider>()
                                       .increaseBet();
                                   plinko.setPlayState(PlayState.ready);
                                 }, () {
-                                  if (plinko.getPlayState() ==
+                                      //on decrease bet
+                                      if (plinko.getPlayState() ==
                                       PlayState.playing) {
                                     return;
                                   }
                                   plinko.setPlayState(PlayState.ready);
-                                  context.read<GameProvider>().increaseBet();
+                                  context.read<GameProvider>().decreaseBet();
 
-                                  //on decrease bet
                                   plinko.setPlayState(PlayState.ready);
                                 }),
                               ],
