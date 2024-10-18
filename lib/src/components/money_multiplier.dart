@@ -48,7 +48,6 @@ class MoneyMultiplier extends RectangleComponent
     // TODO: implement onCollisionStart
     super.onCollisionStart(intersectionPoints, other);
     if (other is Ball) {
-
       if (intersectionPoints.first.x >= position.x &&
           intersectionPoints.first.x < (position.x + size.x)) {
         _winCondition(other);
@@ -57,18 +56,20 @@ class MoneyMultiplier extends RectangleComponent
   }
 
   void _winCondition(Ball ball) {
-    if(ball.isRemoved || isRemoving){
+    if (ball.isRemoved || isRemoving) {
       return;
     }
-    game.world.removeAll(game.world.children.query<Ball>());
+    ball.removeFromParent();
     game.score.value = multiplier.toDouble();
-    if (multiplier.toDouble() < 1.0) {
-      game.setPlayState(PlayState.lost);
-    } else {
-      game.setPlayState(PlayState.won);
-    }    final glowEffect = GlowEffect(
+    game.gameResults.value = [...game.gameResults.value, this];
+
+    if (ball.index + 1 >= game.roundInfo.balls) {
+        game.setPlayState(PlayState.roundOver);
+    }
+    final glowEffect = GlowEffect(
         20, EffectController(duration: 0.5, reverseDuration: 1),
         style: BlurStyle.solid);
+
     // add(colorEffect);
 
     final scaleEffect = ScaleEffect.by(
@@ -85,7 +86,6 @@ class MoneyMultiplier extends RectangleComponent
     // preceding line removes this brick from its parent.
     // The key point to understand is that component removal is a queued command. It removes the brick after this code runs,
     // but before the next tick of the game world.
-
   }
 }
 
@@ -97,4 +97,40 @@ final _regular = TextPaint(
   style: _regularTextStyle,
 );
 
-final moneyMultiplier = [2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0,2.0, 1.5, 1.2, 1.0, 0.8, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0];
+//total 15 money multipliers
+final moneyMultiplier = [
+  2.5,
+  2.0,
+  1.5,
+  1.1,
+  1.0,
+  0.7,
+  0.3,
+  0.0, //middle
+  0.3,
+  0.7,
+  1.0,
+  1.1,
+  1.5,
+  2.0,
+  2.5,
+];
+
+//total 15 colors
+const moneyMultiplierColors = [                                           // Add this const
+  Color(0xfff94440),
+  Color(0xfff94159),
+  Color(0xfff3722c),
+  Color(0xfff8961e),
+  Color(0xff43aa8b),
+  Color(0xff90be6d),
+  Color(0xff90be9e),
+  Color(0xfff9c74f),
+  Color(0xff90be9e),
+  Color(0xff90be6d),
+  Color(0xff43aa8b),
+  Color(0xfff8961e),
+  Color(0xfff3722c),
+  Color(0xfff94159),
+  Color(0xfff94440),
+];

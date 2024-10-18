@@ -8,12 +8,11 @@ import '../../plinko.dart';
 
 class Obstacle extends CircleComponent
     with CollisionCallbacks, HasGameReference<Plinko> {
-  Obstacle(
-      {required this.row,
-      required this.column,
-      required super.position,
-      })
-      : super(
+  Obstacle({
+    required this.row,
+    required this.column,
+    required super.position,
+  }) : super(
           radius: obstacleRadius * 0.8,
           anchor: Anchor.center,
           paint: Paint()
@@ -29,7 +28,7 @@ class Obstacle extends CircleComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    game.bounceEffect.start(volume:0.5);
+    game.bounceEffect.start();
     final colorEffect = ColorEffect(
       const Color(0xffB59410),
       EffectController(duration: 0.4, reverseDuration: 1),

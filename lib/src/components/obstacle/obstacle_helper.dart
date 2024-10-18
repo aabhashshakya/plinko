@@ -1,6 +1,5 @@
 ///Created by Aabhash Shakya on 10/17/24
 import 'package:flame/components.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../config.dart';
 
@@ -8,7 +7,7 @@ class ObstacleHelper {
   Vector2? _lastObstaclePosition;
   Vector2? _firstObstaclePosition;
 
-  final Map<List<int>, Vector2> _position = {};
+  final Map<String, Vector2> _position = {};
 
   ObstacleHelper() {
     for (var i = 0; i < obstacleRows; i++) {
@@ -39,21 +38,16 @@ class ObstacleHelper {
       x = (_lastObstaclePosition!.x) + obstacleDistance;
     }
     _lastObstaclePosition = Vector2(x, y);
-    _position[[row, column]] = _lastObstaclePosition!;
+    _position["$row$column"] = _lastObstaclePosition!;
     return _lastObstaclePosition!;
   }
 
   Vector2 getObstaclePosition(int row, int column) {
-    print("we are getting: $row, $column");
-    _position.forEach((k, v) {
-      print("[$k,$v");
-    });
-    return _position.entries.firstWhere((mapElement) {
-      return listEquals(mapElement.key, [row, column]);
-    }).value;
+    return _position["$row$column"]!;
   }
 
   void _reset() {
     _lastObstaclePosition = null;
+    _firstObstaclePosition = null;
   }
 }

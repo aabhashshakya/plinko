@@ -14,6 +14,7 @@ import 'dart:math';
 class Ball extends CircleComponent
     with CollisionCallbacks, HasGameReference<Plinko> {
   Ball({
+    required this.index,
     required this.velocity,
     required super.position,
     required double radius,
@@ -25,6 +26,7 @@ class Ball extends CircleComponent
               ..style = PaintingStyle.fill,
             children: [CircleHitbox()]); // Add this parameter
 
+  final int index;
   final Vector2 velocity;
   final _velocityTmp = Vector2.zero();
 
@@ -59,7 +61,6 @@ class Ball extends CircleComponent
           delay: 0.35,
           onComplete: () {
             // Modify from here
-            game.setPlayState(PlayState.lost);
           }));
     }
     // else if(other is TriangleBoundary) {
@@ -77,7 +78,7 @@ class Ball extends CircleComponent
     //     velocity.x = -velocity.x;
     //   }
     // }
-    else if (other is Obstacle) {
+    else if (other is Obstacle || other is Ball) {
       // Modify from here...
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision start: y: ${position.y} < oy: ${other.position.y}");
@@ -106,7 +107,7 @@ class Ball extends CircleComponent
   void onCollisionEnd(PositionComponent other) {
     // TODO: implement onCollisionEnd
     super.onCollisionEnd(other);
-    if (other is Obstacle) {
+    if (other is Obstacle || other is Ball) {
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision end: y:${position.y} < oy:${other.position.y}");
         Future.delayed(const Duration(milliseconds: 20), () {

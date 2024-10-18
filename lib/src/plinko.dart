@@ -11,18 +11,17 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plinko/src/components/boundary.dart';
 import 'package:plinko/src/components/money_multiplier.dart';
 import 'package:plinko/src/components/obstacle/obstacle_helper.dart';
+import 'package:plinko/src/model/round_info.dart';
 
 import '../config.dart';
 import 'components/components.dart';
 
 enum PlayState {
-  inactive,
+  ready,
   playing,
-  lost,
-  won,
+  roundOver,
   gameOver
 } // Add this enumeration
 
@@ -37,6 +36,8 @@ class Plinko extends FlameGame
           ),
         );
 
+  var roundInfo = RoundInfo.getDefault();
+
   late ObstacleHelper obstacleHelper;
 
   //obstacle position
@@ -46,36 +47,42 @@ class Plinko extends FlameGame
   late Vector2 endRightObstaclePosition;
 
   //last row obstacles count
-  final int _lastRowObstaclesCount =
-      obstacleRows + topRowObstaclesCount - 1; // -1 as index starts from 0 and o < _maxRows
+  final int _lastRowObstaclesCount = obstacleRows +
+      topRowObstaclesCount -
+      1; // -1 as index starts from 0 and o < _maxRows
 
   final rand = math.Random();
 
-  final ValueNotifier<double> score = ValueNotifier(0); // Add this line
+  final ValueNotifier<double> score = ValueNotifier(0);
+  final ValueNotifier<List<MoneyMultiplier>> gameResults = ValueNotifier([]);
+
 
   double get width => size.x;
 
   double get height => size.y;
 
   final ValueNotifier<PlayState> playState =
-      ValueNotifier(PlayState.inactive); // Add from here...
+      ValueNotifier(PlayState.ready); // Add from here...
+
+  PlayState getPlayState(){
+    return playState.value;
+  }
 
   void setPlayState(PlayState state) {
     playState.value = state;
     switch (playState.value) {
-      case PlayState.lost || PlayState.won:
+      case PlayState.roundOver:
         {
+          overlays.removeAll(PlayState.values.map((e)=>e.name));
           overlays.add(playState.value.name);
         }
-      case PlayState.playing || PlayState.inactive:
+      case PlayState.playing || PlayState.ready:
         {
-          overlays.remove(PlayState.lost.name);
-          overlays.remove(PlayState.won.name);
+          overlays.removeAll(PlayState.values.map((e)=>e.name));
         }
       case PlayState.gameOver:
         {
-          overlays.remove(PlayState.lost.name);
-          overlays.remove(PlayState.won.name);
+          overlays.removeAll(PlayState.values.map((e)=>e.name));
           overlays.add(playState.value.name);
         }
     }
@@ -86,15 +93,17 @@ class Plinko extends FlameGame
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
+
     obstacleHelper = ObstacleHelper();
     //By default, Flame follows Flutter’s canvas anchoring, which means that (0, 0) is anchored on the top left corner
     // of the canvas. So the game and all components use that same anchor by default. We can change this by changing
     // our component’s anchor attribute to Anchor.center, which will make our life way easier if you want to center the
     // component on the screen.
     camera.viewfinder.anchor = Anchor.topLeft;
-    bounceEffect = await FlameAudio.createPool('bounce.mp3', maxPlayers: 2);
+    bounceEffect = await FlameAudio.createPool('bounce.mp3', maxPlayers:3);
 
-    setPlayState(PlayState.inactive);
+
+    setPlayState(PlayState.ready);
 
     //Adds the PlayArea to the world. The world represents the game world. It projects all of its children through the
     // CameraComponents view transformation.
@@ -107,9 +116,7 @@ class Plinko extends FlameGame
 
     world.removeAll(world.children.query<Ball>());
     world.removeAll(world.children.query<Obstacle>());
-    world.removeAll(world.children.query<TriangleBoundary>());
     world.removeAll(world.children.query<MoneyMultiplier>());
-    // world.removeAll(world.children.query<TextComponent>());
 
     world.addAll([
       // Add from here...
@@ -136,30 +143,14 @@ class Plinko extends FlameGame
             size: _calculateMoneyMultiplierSize())
     ]);
 
-    world.add(TriangleBoundary([
-      _calculateTrianglePosition(
-          _TriangleLocation.left, _TriangleVertex.topRight),
-      _calculateTrianglePosition(
-          _TriangleLocation.left, _TriangleVertex.topLeft),
-      _calculateTrianglePosition(
-          _TriangleLocation.left, _TriangleVertex.bottom),
-    ]));
-
-    world.add(TriangleBoundary([
-      _calculateTrianglePosition(
-          _TriangleLocation.right, _TriangleVertex.topRight),
-      _calculateTrianglePosition(
-          _TriangleLocation.right, _TriangleVertex.topLeft),
-      _calculateTrianglePosition(
-          _TriangleLocation.right, _TriangleVertex.bottom),
-    ]));
-
   }
 
-  void playGame() {
+  Future<void> playGame(RoundInfo info) async {
     if (playState.value == PlayState.playing) return;
+    roundInfo = info;
     world.removeAll(world.children.query<Ball>());
-    score.value = 0; // Add this line
+    score.value = 0;
+    gameResults.value = [];
     setPlayState(PlayState.playing);
     //This change adds the Ball component to the world. To set the ball's position to the center of the display area,
     // the code first halves the size of the game, as Vector2 has operator overloads (* and /) to scale a Vector2 by a
@@ -169,34 +160,36 @@ class Plinko extends FlameGame
     // direction as the original Vector2, but scaled down to a distance of 1. This keeps the speed of the ball consistent
     // no matter which direction the ball goes. The ball's velocity is then scaled up to be a 1/4 of the height of the game.
     // Getting these various values right involves some iteration, also known as playtesting in the industry.
-    var random = rand.nextDouble();
-    world.add(Ball(
-        radius: ballRadius,
-        position: Vector2(width / 2, height / 4.85),
-        //initial position of the ball, which s  center
-        velocity:
-            Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
-                .normalized()
-              ..scale(height / 3.5))); //scale is the speed, how fast it moves
+
+    for (int i = 0; i < roundInfo.balls; i++) {
+      await Future.delayed(const Duration(milliseconds: 400));
+      var random = rand.nextDouble();
+      world.add(Ball(
+        index: i,
+          radius: ballRadius,
+          position: Vector2(width / 2, height / 4.85),
+          //initial position of the ball, which s  center
+          velocity:
+              Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
+                  .normalized()
+                ..scale(height / 3.5))); //scale is the speed, how fast it moves
+    }
   }
 
   @override
   Color backgroundColor() => Colors.transparent; //make game transparent
 
-
-
   Vector2 _calculateMoneyMultiplierPosition(int column) {
-    var bottomPadding = 50;
+    var bottomPadding = 30;
     var bottomObstacle = obstacleHelper.getObstaclePosition(
         obstacleRows - 1, column); //-1 as index is 0 < maxRows
 
-    return Vector2(
-        bottomObstacle.x + 2, bottomObstacle.y + bottomPadding);
+    return Vector2(bottomObstacle.x + 2, bottomObstacle.y + bottomPadding);
   }
 
   Vector2 _calculateMoneyMultiplierSize() {
     var height = 80.0;
-    var width = obstacleDistance.toDouble() - 2 ;
+    var width = obstacleDistance.toDouble() - 2;
     return Vector2(width, height);
   }
 
@@ -233,13 +226,15 @@ class Plinko extends FlameGame
           switch (vertex) {
             case _TriangleVertex.topLeft:
               {
-                var topRightObstacle = obstacleHelper.getObstaclePosition(0, topRowObstaclesCount - 1);
+                var topRightObstacle = obstacleHelper.getObstaclePosition(
+                    0, topRowObstaclesCount - 1);
                 return Vector2(
                     topRightObstacle.x, topRightObstacle.y - topPadding);
               }
             case _TriangleVertex.topRight:
               {
-                var topRightObstacle = obstacleHelper.getObstaclePosition(0, topRowObstaclesCount -1);
+                var topRightObstacle = obstacleHelper.getObstaclePosition(
+                    0, topRowObstaclesCount - 1);
                 //-100 to make triangle convex, read more inside boundary.dart file
                 return Vector2(
                     gameWidth, topRightObstacle.y - topPadding - 100);
@@ -248,7 +243,7 @@ class Plinko extends FlameGame
               {
                 var bottomRightObstacle = obstacleHelper.getObstaclePosition(
                     obstacleRows - 1,
-                    _lastRowObstaclesCount -1); //-1 as index is 0 < maxRows
+                    _lastRowObstaclesCount - 1); //-1 as index is 0 < maxRows
                 return Vector2(width, bottomRightObstacle.y);
               }
           }
@@ -257,7 +252,6 @@ class Plinko extends FlameGame
   }
 // To here
 }
-
 
 //for positioning the triangle obstacle to prevent the ball out of screen
 enum _TriangleVertex { topLeft, topRight, bottom }

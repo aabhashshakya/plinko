@@ -7,33 +7,50 @@ class OverlayScreen extends StatelessWidget {
     required this.color,
     required this.title,
     required this.subtitle,
+    required this.onTap,
+     this.titleFontSize = 40,
+     this.subtitleFontSize = 30
+
   });
 
   final String title;
   final Color color;
   final String subtitle;
+  final double titleFontSize;
+  final double subtitleFontSize;
+  final Function onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: const Alignment(0, -0.15),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: color),
-          ).animate().slideY(duration: 750.ms, begin: -3, end: 0),
-          const SizedBox(height: 16),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color),
-          )
-              .animate(onPlay: (controller) => controller.repeat())
-              .fadeIn(duration: 1.seconds)
-              .then()
-              .fadeOut(duration: 1.seconds),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: (){
+        onTap();
+      },
+      child: Container(
+        width: double.maxFinite,
+        height: double.maxFinite,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: color, fontSize: titleFontSize),
+            ).animate().slideY(duration: 750.ms, begin: -3, end: 0),
+            const SizedBox(height: 16),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color, fontSize: subtitleFontSize),
+            )
+                .animate(onPlay: (controller) => controller.repeat())
+                .fadeIn(duration: 1.seconds)
+                .then(delay: const Duration(milliseconds: 500))
+                .fadeOut(duration: 0.5.seconds),
+          ],
+        ),
       ),
     );
   }
