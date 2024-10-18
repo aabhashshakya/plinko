@@ -28,7 +28,7 @@ class Obstacle extends CircleComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    game.bounceEffect.start();
+  //  game.bounceEffect.start();
     final colorEffect = ColorEffect(
       const Color(0xffB59410),
       EffectController(duration: 0.4, reverseDuration: 1),
