@@ -14,7 +14,7 @@ import '../plinko.dart';
 class PlayArea extends RectangleComponent with HasGameReference<Plinko> {
   PlayArea()
       : super(
-    paint: Paint()..color = const Color(0xfff2e8cf),
+    paint: Paint()..color = Colors.transparent,
     children: [RectangleHitbox()],   // To start populating the game's hitboxes, modify the PlayArea component as shown below.
 //Adding a RectangleHitbox component as a child of the RectangleComponent will construct a hit box for collision detection
 // that matches the size of the parent component. There is a factory constructor for RectangleHitbox called relative for
