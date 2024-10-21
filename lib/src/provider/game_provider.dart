@@ -55,6 +55,7 @@ class GameProvider extends ChangeNotifier{
     return numberOfBalls;
   }
 
+
   bool trySpendCredits(){
     if(bet * numberOfBalls <= credit){
       roundInfo.reset();

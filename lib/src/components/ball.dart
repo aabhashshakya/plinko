@@ -24,7 +24,7 @@ class Ball extends CircleComponent
             paint: Paint()
               ..color = Colors.orange
               ..style = PaintingStyle.fill,
-            children: [CircleHitbox()]); // Add this parameter
+            children: [CircleHitbox()]);
 
   final int index;
   final Vector2 velocity;
@@ -34,6 +34,16 @@ class Ball extends CircleComponent
 //  velocity is both speed and direction. To update position, override the update method, which the game engine calls for
 //  every frame. The dt is the duration between the previous frame and this frame. This enables you to adapt to factors
 //  like different frame rates (60hz or 120hz) or long frames due to excessive computation.
+
+  /// This method is called periodically by the game engine to request that your
+  /// component updates itself.
+  ///
+  /// The time [dt] in seconds (with microseconds precision provided by Flutter)
+  /// since the last update cycle.
+  /// This time can vary according to hardware capacity, so make sure to update
+  /// your state considering this.
+  /// All components in the tree are always updated by the same amount. The time
+  /// each one takes to update adds up to the next update cycle.
   @override
   void update(double dt) {
     super.update(dt);
@@ -46,16 +56,19 @@ class Ball extends CircleComponent
     position.add(_velocityTmp);
   }
 
-  @override // Add from here...
+  @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     print("----------- COLLISION START-------------");
 
-
-
     if (other is PlayArea) {
       //game is over if ball goes out of play area
+      game.activeBalls--;
+      if (game.activeBalls <= 0) {
+        //round over if it was the last ball
+        game.setPlayState(PlayState.roundOver);
+      }
       add(RemoveEffect(
           // Modify from here...
           delay: 0.35,
@@ -63,21 +76,7 @@ class Ball extends CircleComponent
             // Modify from here
           }));
     }
-    // else if(other is TriangleBoundary) {
-    //   if (position.y < intersectionPoints.first.y) {
-    //     //top boundary collide, just reverse the velocity direction
-    //     velocity.y = -velocity.y;
-    //   }  if (position.y > intersectionPoints.first.y) {
-    //     //When the ball collides with the bottom boundary, it just disappears from the playing
-    //     velocity.y = -velocity.y;
-    //   }  if (position.x < other.position.x) {
-    //     //right boundary collide, just reverse the velocity direction
-    //     velocity.x = -velocity.x;
-    //   }  if (position.x > other.position.x) {
-    //     //left boundary collide, just reverse the velocity direction
-    //     velocity.x = -velocity.x;
-    //   }
-    // }
+
     else if (other is Obstacle || other is Ball) {
       // Modify from here...
       if (position.y < other.position.y - other.size.y / 2) {

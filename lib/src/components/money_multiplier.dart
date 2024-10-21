@@ -60,10 +60,11 @@ class MoneyMultiplier extends RectangleComponent
       return;
     }
     ball.removeFromParent();
+    game.activeBalls--;
     game.score.value = multiplier.toDouble();
     game.gameResults.value = [...game.gameResults.value, this];
 
-    if (ball.index + 1 >= game.roundInfo.balls) {
+    if (game.activeBalls <= 0) {
         game.setPlayState(PlayState.roundOver);
     }
     final glowEffect = GlowEffect(

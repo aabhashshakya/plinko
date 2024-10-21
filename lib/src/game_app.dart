@@ -50,6 +50,8 @@ class _GameAppState extends State<GameApp> {
     plinko = Plinko();
 
     //add listeners
+
+    //called when the balls hits a money multiplier
     scoreListener = () {
       context.read<GameProvider>().updateTotalWinnings(plinko.score.value);
     };

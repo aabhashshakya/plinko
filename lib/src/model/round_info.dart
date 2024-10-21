@@ -1,5 +1,6 @@
 ///Created by Aabhash Shakya on 10/18/24
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:plinko/config.dart';
 
 import '../components/components.dart';
@@ -28,6 +29,7 @@ class RoundInfo extends ChangeNotifier {
     totalBet = bet * balls;
     notifyListeners();
   }
+
 
   void updateTotalWinnings(num score){
     totalWinnings += (score * bet).toInt();

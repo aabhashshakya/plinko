@@ -37,6 +37,7 @@ class Plinko extends FlameGame
         );
 
   var roundInfo = RoundInfo.getDefault();
+  var activeBalls = minBalls;
 
   late ObstacleHelper obstacleHelper;
 
@@ -148,6 +149,7 @@ class Plinko extends FlameGame
   Future<void> playGame(RoundInfo info) async {
     if (playState.value == PlayState.playing) return;
     roundInfo = info;
+    activeBalls = roundInfo.balls;
     world.removeAll(world.children.query<Ball>());
     score.value = 0;
     gameResults.value = [];
