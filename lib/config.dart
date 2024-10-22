@@ -19,5 +19,5 @@ const obstacleGutter = gameWidth * 0.021;
 const minBet = 10;
 const minBalls =1;
 const maxBalls = 1000;
-const defaultCredit = 9999;
+const defaultCredit = 99999;
 
