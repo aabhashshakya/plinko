@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   flame: ^1.16.0
+  collection: ^1.18.0
   flame_audio: ^2.10.3
   flutter:
     sdk: flutter
@@ -15,12 +16,15 @@ dependencies:
   google_fonts: ^6.1.0
   animated_text_lerp: ^1.0.5
   provider: ^6.0.3
+  to_csv: ^4.0.4
+
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true

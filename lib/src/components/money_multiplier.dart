@@ -63,9 +63,19 @@ class MoneyMultiplier extends RectangleComponent
     game.activeBalls--;
     game.score.value = multiplier.toDouble();
     game.gameResults.value = [...game.gameResults.value, this];
+    if (game.roundInfo.isSimulation) {
+      //add result to CSV file
+      var result = [
+        ball.index.toString(), //S.N
+        "${multiplier}x",
+        column.toString()
+    //result
+      ];
+      game.simulationResult.add(result);
+    }
 
     if (game.activeBalls <= 0) {
-        game.setPlayState(PlayState.roundOver);
+      game.setPlayState(PlayState.roundOver);
     }
     final glowEffect = GlowEffect(
         20, EffectController(duration: 0.5, reverseDuration: 1),
@@ -118,7 +128,7 @@ final moneyMultiplier = [
 ];
 
 //total 15 colors
-const moneyMultiplierColors = [                                           // Add this const
+const moneyMultiplierColors = [ // Add this const
   Color(0xfff94440),
   Color(0xfff94159),
   Color(0xfff3722c),

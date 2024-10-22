@@ -6,16 +6,18 @@ import 'package:plinko/config.dart';
 import '../components/components.dart';
 
 class RoundInfo extends ChangeNotifier {
-  RoundInfo._(this.bet,this.balls, this.totalBet,this.totalWinnings,this.results);
+  RoundInfo._(this.bet, this.balls, this.totalBet, this.totalWinnings,
+      this.results, this.isSimulation);
 
   int bet;
   int totalBet;
   int balls;
   int totalWinnings;
   List<MoneyMultiplier> results;
+  bool isSimulation;
 
   static RoundInfo getDefault() {
-    return RoundInfo._(minBet,minBet * minBalls,minBalls,0,[]);
+    return RoundInfo._(minBet, minBet * minBalls, minBalls, 0, [],false);
   }
 
   void setBet(int value) {
@@ -30,21 +32,19 @@ class RoundInfo extends ChangeNotifier {
     notifyListeners();
   }
 
-
-  void updateTotalWinnings(num score){
+  void updateTotalWinnings(num score) {
     totalWinnings += (score * bet).toInt();
     notifyListeners();
-
   }
-   void setResults(List<MoneyMultiplier> value){
+
+  void setResults(List<MoneyMultiplier> value) {
     results = value;
     notifyListeners();
+  }
 
-   }
-
-   void reset(){
+  void reset() {
+    isSimulation = false;
     totalWinnings = 0;
     results = [];
-   }
-
+  }
 }
