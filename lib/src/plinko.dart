@@ -86,6 +86,9 @@ class Plinko extends FlameGame
               var moneyMultipliers = moneyMultiplier.mapIndexed((index,e) => "${e}x,$index").toList();
               Map<String, int> occurenceMap = { for (var e in moneyMultipliers) e : 0 };
 
+              //add a total header
+              occurenceMap["totalBalls"] = roundInfo.balls;
+
               for (var e in simulationResult) {
                 var multiplier ="${e[1]},${e.last}";
                 if (!occurenceMap.containsKey(multiplier)) {
@@ -97,7 +100,9 @@ class Plinko extends FlameGame
               List<String> header2 = occurenceMap.keys.toList();
               List<String> repetition =
               occurenceMap.values.map((e) => e.toString()).toList();
-              myCSV(header2, [repetition], fileName: "plinko_distribution");
+              List<String> odds =
+              repetition.map((e) => "${(int.parse(e)/roundInfo.balls)*100}%").toList();
+              myCSV(header2, [repetition,odds], fileName: "plinko_distribution");
             });
           }
         }
@@ -194,7 +199,7 @@ class Plinko extends FlameGame
           position: Vector2(width / 2, height / 4.85),
           //initial position of the ball, which s  center
           velocity:
-              Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
+              Vector2(random > 0.5 ? random * 130 : random * -320, height * 0.2)
                   .normalized()
                 ..scale(height / 3.5))); //scale is the speed, how fast it moves
     }
@@ -227,7 +232,7 @@ class Plinko extends FlameGame
           position: Vector2(width / 2, height / 4.85),
           //initial position of the ball, which s  center
           velocity:
-              Vector2(random > 0.5 ? random * 150 : random * -320, height * 0.2)
+              Vector2(random > 0.5 ? random * 130 : random * -320, height * 0.2)
                   .normalized()
                 ..scale(height / 3.5))); //scale is the speed, how fast it moves
     }

@@ -99,12 +99,12 @@ class Ball extends CircleComponent
       }
       if (position.x < other.position.x) {
         print("collision start: x:${position.x} < ox:${other.position.x}");
-        velocity.x += velocity.x > 0 ? -velocity.x - 95 *(Random().nextDouble() * 6) : (velocity.x * -1) - 35 * (Random().nextDouble() * 6);
+        velocity.x += velocity.x > 0 ? -velocity.x - 95 *(Random().nextDouble() * 6) : (velocity.x * -1) - 75 * (Random().nextDouble() * 6);
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
       if (position.x > other.position.x) {
         print("collision start: x:${position.x} > ox:${other.position.x}");
-        velocity.x += velocity.x > 0 ? velocity.x + 95 * (Random().nextDouble() * 6) : (velocity.x * -1) + 35 * (Random().nextDouble() * 6);
+        velocity.x += velocity.x > 0 ? velocity.x + 95 * (Random().nextDouble() * 6) : (velocity.x * -1) + 75 * (Random().nextDouble() * 6);
         print("start velocity: x:${velocity.x} y: ${velocity.y}");
       }
     }
