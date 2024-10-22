@@ -79,15 +79,14 @@ class Plinko extends FlameGame
 
           if (roundInfo.isSimulation) {
             //write simulation output in a CSV
-            List<String> header = ["Ball ID", "result", "prize_column"];
-            myCSV(header, simulationResult, fileName: "plinko_results")
-                .then((_) {
+            // List<String> header = ["Ball ID", "result", "prize_column"];
+            // myCSV(header, simulationResult, fileName: "plinko_results")
+            //     .then((_) {
               //write probability output in csv
               var moneyMultipliers = moneyMultiplier.mapIndexed((index,e) => "${e}x,$index").toList();
               Map<String, int> occurenceMap = { for (var e in moneyMultipliers) e : 0 };
 
-              //add a total header
-              occurenceMap["totalBalls"] = roundInfo.balls;
+
 
               for (var e in simulationResult) {
                 var multiplier ="${e[1]},${e.last}";
@@ -97,13 +96,24 @@ class Plinko extends FlameGame
                   occurenceMap[multiplier] = occurenceMap[multiplier]! + 1;
                 }
               }
-              List<String> header2 = occurenceMap.keys.toList();
-              List<String> repetition =
-              occurenceMap.values.map((e) => e.toString()).toList();
-              List<String> odds =
-              repetition.map((e) => "${(int.parse(e)/roundInfo.balls)*100}%").toList();
-              myCSV(header2, [repetition,odds], fileName: "plinko_distribution");
-            });
+              List<String> header2 = occurenceMap.keys.toList(); // the multipliers are the column headers
+              List<String> column1 =
+              occurenceMap.values.map((e) => e.toString()).toList(); //no. of times ball hit those multipliers
+              List<String> column2 =
+              column1.map((e) => "${(int.parse(e)/roundInfo.balls)*100}%").toList(); //the probability of being hit
+
+              //add a total
+              header2.add("Total balls");
+              column1.add("${roundInfo.balls}");
+              column2.add((""));
+
+              //add RTP header
+              header2.add("RTP");
+              column1.add("${roundInfo.totalWinnings}/${roundInfo.totalBet}=");
+              column2.add(("${(roundInfo.totalWinnings.toDouble()/roundInfo.totalBet)*100}%"));
+
+              myCSV(header2, [column1,column2], fileName: "plinko_distribution");
+         //   });
           }
         }
       case PlayState.playing || PlayState.ready:

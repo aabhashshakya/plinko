@@ -114,7 +114,7 @@ class Ball extends CircleComponent
   void onCollisionEnd(PositionComponent other) {
     // TODO: implement onCollisionEnd
     super.onCollisionEnd(other);
-    if (other is Obstacle || other is Ball) {
+    if (other is Obstacle) {
       if (position.y < other.position.y - other.size.y / 2) {
         print("collision end: y:${position.y} < oy:${other.position.y}");
         Future.delayed(const Duration(milliseconds: 20), () {

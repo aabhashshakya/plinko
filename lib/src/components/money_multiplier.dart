@@ -117,7 +117,7 @@ final moneyMultiplier = [
   1.0,
   0.8,
   0.5,
-  0.0, //middle
+  0.5, //middle
   0.5,
   0.8,
   1.0,
